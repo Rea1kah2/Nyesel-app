@@ -1,4 +1,5 @@
 class Pengeluaran {
+  final String id;
   final String nama;
   final String kategori;
   final int nominal;
@@ -8,6 +9,7 @@ class Pengeluaran {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nama': nama,
       'kategori': kategori,
       'nominal': nominal,
@@ -19,6 +21,7 @@ class Pengeluaran {
 
   factory Pengeluaran.fromJson(Map<String, dynamic> json) {
     return Pengeluaran(
+      id: json['id'] as String? ?? buatId(),
       nama: json['nama'] as String,
       kategori: json['kategori'] as String,
       nominal: json['nominal'] as int,
@@ -29,6 +32,7 @@ class Pengeluaran {
   }
 
   const Pengeluaran({
+    required this.id,
     required this.nama,
     required this.kategori,
     required this.nominal,
@@ -37,6 +41,9 @@ class Pengeluaran {
     required this.tanggal,
   });
 }
+
+/// Id unik berbasis waktu, cukup untuk membedakan antar item di penyimpanan lokal.
+String buatId() => DateTime.now().microsecondsSinceEpoch.toString();
 
 String formatRupiah(int nominal) {
   final teks = nominal.toString();

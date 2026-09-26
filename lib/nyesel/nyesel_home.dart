@@ -125,7 +125,7 @@ class _NyeselHomeState extends State<NyeselHome> {
 
   void _updatePengeluaran(Pengeluaran lama, Pengeluaran baru) {
     setState(() {
-      final index = _daftar.indexOf(lama);
+      final index = _daftar.indexWhere((item) => item.id == lama.id);
       if (index != -1) {
         _daftar[index] = baru;
       }
@@ -135,10 +135,10 @@ class _NyeselHomeState extends State<NyeselHome> {
 
   void _hapusPengeluaran(Pengeluaran item) {
     setState(() {
-      _daftar.remove(item);
+      _daftar.removeWhere((element) => element.id == item.id);
     });
     _simpanKeStorage();
-    tampilkanNotifikasi(context, pesan: 'Pengeluarn dihapus', berhasil: true);
+    tampilkanNotifikasi(context, pesan: 'Pengeluaran dihapus', berhasil: true);
   }
 
   @override
@@ -211,7 +211,7 @@ class _NyeselHomeState extends State<NyeselHome> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Pelaak uang yang disesali',
+                          'Pelacak uang yang disesali',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white.withOpacity(0.6),
