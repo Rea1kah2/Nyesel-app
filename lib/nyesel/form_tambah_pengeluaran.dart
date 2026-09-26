@@ -54,6 +54,7 @@ class _FormTambahPengeluaranState extends State<FormTambahPengeluaran> {
     }
 
     final hasil = Pengeluaran(
+      id: widget.item?.id ?? buatId(),
       nama: _namaController.text,
       kategori: _kategoriController.text,
       nominal: int.parse(_nominalController.text),
@@ -209,7 +210,7 @@ class _FormTambahPengeluaranState extends State<FormTambahPengeluaran> {
                 decoration: _dekorasiInput('Contoh: 15000'),
               ),
               const SizedBox(height: 16),
-              _buildLabel('Ini pengeluarn layak atau disesali?'),
+              _buildLabel('Ini pengeluaran layak atau disesali?'),
               const SizedBox(height: 8),
               Row(
                 children: [
