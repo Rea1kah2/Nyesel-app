@@ -10,6 +10,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'notifikasi.dart';
 
+enum _UrutanPengeluaran { terbaru, nominalTerbesar }
+
 class NyeselHome extends StatefulWidget {
   const NyeselHome({super.key});
 
@@ -21,6 +23,9 @@ class _NyeselHomeState extends State<NyeselHome> {
   List<Pengeluaran> _daftar = [];
 
   String? _filterKategori;
+  String _kataKunci = '';
+  _UrutanPengeluaran _urutan = _UrutanPengeluaran.terbaru;
+  final _pencarianController = TextEditingController();
 
   @override
   void initState() {
@@ -39,6 +44,7 @@ class _NyeselHomeState extends State<NyeselHome> {
   void dispose() {
     preferensiBatasHarian.removeListener(_onPengaturanBerubah);
     preferensiUangMakanHarian.removeListener(_onPengaturanBerubah);
+    _pencarianController.dispose();
     super.dispose();
   }
 
@@ -125,7 +131,7 @@ class _NyeselHomeState extends State<NyeselHome> {
 
   void _updatePengeluaran(Pengeluaran lama, Pengeluaran baru) {
     setState(() {
-      final index = _daftar.indexOf(lama);
+      final index = _daftar.indexWhere((item) => item.id == lama.id);
       if (index != -1) {
         _daftar[index] = baru;
       }
@@ -135,10 +141,10 @@ class _NyeselHomeState extends State<NyeselHome> {
 
   void _hapusPengeluaran(Pengeluaran item) {
     setState(() {
-      _daftar.remove(item);
+      _daftar.removeWhere((element) => element.id == item.id);
     });
     _simpanKeStorage();
-    tampilkanNotifikasi(context, pesan: 'Pengeluarn dihapus', berhasil: true);
+    tampilkanNotifikasi(context, pesan: 'Pengeluaran dihapus', berhasil: true);
   }
 
   @override
@@ -176,9 +182,21 @@ class _NyeselHomeState extends State<NyeselHome> {
 
     final kategoriTersedia =
         <String>{'Semua', ..._daftar.map((item) => item.kategori)}.toList();
-    final daftarTampil = _filterKategori == null
+    final daftarKategori = _filterKategori == null
         ? _daftar
         : _daftar.where((item) => item.kategori == _filterKategori).toList();
+
+    final daftarPencarian = _kataKunci.isEmpty
+        ? daftarKategori
+        : daftarKategori
+            .where((item) =>
+                item.nama.toLowerCase().contains(_kataKunci.toLowerCase()))
+            .toList();
+
+    final daftarTampil = [...daftarPencarian]
+      ..sort((a, b) => _urutan == _UrutanPengeluaran.terbaru
+          ? b.tanggal.compareTo(a.tanggal)
+          : b.nominal.compareTo(a.nominal));
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -361,6 +379,48 @@ class _NyeselHomeState extends State<NyeselHome> {
                     },
                   ),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _pencarianController,
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        onChanged: (value) => setState(() => _kataKunci = value),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          hintText: 'Cari pengeluaran...',
+                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.35)),
+                          prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.5), size: 18),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.06),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.white.withOpacity(0.15)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton<_UrutanPengeluaran>(
+                      initialValue: _urutan,
+                      color: const Color(0xFF15142A),
+                      icon: Icon(Icons.sort, color: Colors.white.withOpacity(0.7)),
+                      onSelected: (nilai) => setState(() => _urutan = nilai),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: _UrutanPengeluaran.terbaru,
+                          child: Text('Terbaru', style: TextStyle(color: Colors.white)),
+                        ),
+                        const PopupMenuItem(
+                          value: _UrutanPengeluaran.nominalTerbesar,
+                          child: Text('Nominal Terbesar', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 14),
                 if (daftarTampil.isEmpty)
                   Padding(
@@ -376,6 +436,7 @@ class _NyeselHomeState extends State<NyeselHome> {
                     (item) => KartuPengeluaran(
                       item: item,
                       onTap: () => _bukaForm(item: item),
+                      onHapus: () => _hapusPengeluaran(item),
                     ),
                   ),
               ],

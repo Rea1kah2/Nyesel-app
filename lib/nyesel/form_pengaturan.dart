@@ -21,8 +21,8 @@ class _FormPengaturanState extends State<FormPengaturan> {
     super.initState();
     _batasController =
         TextEditingController(text: preferensiBatasHarian.value.toString());
-    _uangMakanController = TextEditingController(
-        text: preferensiUangMakanHarian.value.toString());
+    _uangMakanController =
+        TextEditingController(text: preferensiUangMakanHarian.value.toString());
   }
 
   @override
@@ -200,6 +200,26 @@ class _FormPengaturanState extends State<FormPengaturan> {
                   );
                 },
               ),
+              const SizedBox(height: 24),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Expanded(
+                  child: Text(
+                    'Ingatkan aku jam 20.00 tiap hari',
+                    style: TextStyle(
+                        fontSize: 12, color: Colors.white.withOpacity(0.7)),
+                  ),
+                ),
+                ValueListenableBuilder<bool>(
+                    valueListenable: preferensiReminder,
+                    builder: (context, aktif, _) {
+                      return Switch(
+                        value: aktif,
+                        activeColor: const Color(0xFF7B5CFF),
+                        onChanged: (nilai) => simpanReminder(nilai),
+                      );
+                    },
+                  ),
+              ]),
             ],
           ),
         ),

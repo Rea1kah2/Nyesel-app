@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'nyesel/nyesel_home.dart';
+import 'nyesel/reminder.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initReminder();
   runApp(const MyApp());
 }
 
@@ -25,4 +28,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
